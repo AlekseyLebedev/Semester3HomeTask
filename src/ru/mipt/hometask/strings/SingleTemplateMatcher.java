@@ -78,9 +78,7 @@ public final class SingleTemplateMatcher implements IMetaTemplateMatcher {
 
     @Override
     public List<Occurence> matchStream(ICharStream stream) {
-        if (template == null) {
-            throw new UnsupportedOperationException("There is no template assigned");
-        }
+        checkTemplateExsist();
         List<Occurence> result = new ArrayList<>();
         int value = 0;
         int index = 0;
@@ -109,11 +107,19 @@ public final class SingleTemplateMatcher implements IMetaTemplateMatcher {
         return result;
     }
 
+    private void checkTemplateExsist() {
+        if (template == null) {
+            throw new UnsupportedOperationException("There is no template assigned");
+        }
+    }
+
     public void appendCharToTemplate(char symbol) {
+        checkTemplateExsist();
         appended.add(symbol);
     }
 
     public void prependCharToTemplate(char symbol) {
+        checkTemplateExsist();
         prepended.add(symbol);
         prefixCounted = BEGIN_PREFIX_COUNTED;
     }

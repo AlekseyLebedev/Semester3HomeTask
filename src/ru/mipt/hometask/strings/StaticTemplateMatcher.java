@@ -9,7 +9,7 @@ import java.util.List;
 public final class StaticTemplateMatcher implements IMetaTemplateMatcher {
     private AhoTrie templateTrie = new AhoTrie();
     private int templatesCount = 0;
-    private boolean wasStreamMached = false;
+    private boolean wasStreamMatched = false;
 
     private int getCurrentTemplateId() {
         return templatesCount++;
@@ -17,8 +17,8 @@ public final class StaticTemplateMatcher implements IMetaTemplateMatcher {
 
     @Override
     public int addTemplate(String template) throws TemplateAlreadyExist {
-        if (wasStreamMached) {
-            throw new UnsupportedOperationException("All templates have to be added before first stream matching");
+        if (wasStreamMatched) {
+            throw new IllegalStateException("All templates have to be added before first stream matching");
         }
         int templateId = getCurrentTemplateId();
         if (templateTrie.addString(template, templateId)) {
@@ -30,7 +30,7 @@ public final class StaticTemplateMatcher implements IMetaTemplateMatcher {
 
     @Override
     public List<Occurence> matchStream(ICharStream stream) {
-        wasStreamMached = true;
+        wasStreamMatched = true;
         return templateTrie.searchSubstrings(stream);
     }
 }

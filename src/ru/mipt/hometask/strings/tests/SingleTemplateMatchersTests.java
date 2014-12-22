@@ -318,7 +318,6 @@ public class SingleTemplateMatchersTests {
     @Test
     public void testOnManySameChars() throws TemplateAlreadyExist {
         for (byte i = 1; i < MAX_TEST_SIZE - 1; i++) {
-            System.out.println(i);
             testOnManySameChars(Generators.getForSize(i), factory.generate());
         }
     }
@@ -333,6 +332,21 @@ public class SingleTemplateMatchersTests {
         Assert.assertEquals(30, result.get(1).getPosition());
     }
 
+    @Test
+    public void testCanAddManyStreams() throws TemplateAlreadyExist {
+        matcher.addTemplate("qwert");
+        List<Occurence> result = matcher.matchStream(new StringStream("rfgrfdvsdqwertyfvbcgbqwerdgdfsqwertyu"));
+        Assert.assertEquals(2, result.size());
+        Collections.sort(result);
+        Assert.assertEquals(9, result.get(0).getPosition());
+        Assert.assertEquals(30, result.get(1).getPosition());
+        result = matcher.matchStream(new StringStream("qwerty"));
+        Assert.assertEquals(1, result.size());
+        Assert.assertEquals(0, result.get(0).getPosition());
+        Assert.assertEquals(expectedTemplateId, result.get(0).getTemplateId());
+        result = matcher.matchStream(new StringStream("qwrty"));
+        Assert.assertEquals(0, result.size());
+    }
 
     @Test
     public void testOnEqualCharsStreamIsTwoTemplates() throws TemplateAlreadyExist {
