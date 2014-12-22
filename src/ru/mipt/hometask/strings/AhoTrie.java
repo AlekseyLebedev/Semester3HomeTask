@@ -53,53 +53,7 @@ public class AhoTrie extends Trie {
         return (AhoTrieNode) getRoot();
     }
 
-    //TODO
-    public void print(int deph, AhoTrieNode node) throws IOException {
-        boolean first = true;
-        for (char i = 'a'; i <= 'z' && deph <= 25; i++) {
-            if (node.getChildAho(i) != null) {
-                if (first) {
-                    first = false;
-                } else {
-                    for (int j = 0; j < deph; j++) {
-                        System.out.print(" ");
-                    }
-                }
-                System.out.print(i);
-                print(deph + 1, node.getChildAho(i));
-            }
-        }
-        if (first) {
-            System.out.println();
-        }
-    }
-
-    //TODO
-    private Set<AhoTrieNode> set=new HashSet<>();
-    void dfs(AhoTrieNode node) {
-        if(set.contains(node))
-            throw new RuntimeException("QWERTYUI");
-        set.add(node);
-        if (node.sufficsLink == node) {
-            if (node != getRootAho()) {
-                throw new RuntimeException("All bad!");
-            }
-        }
-        for (char i = 'a'; i <= 'z'; i++) {
-            AhoTrieNode childAho = node.getChildAho(i);
-            if (childAho != null) {
-                dfs(childAho);
-            }
-        }
-    }
-
     public List<Occurence> searchSubstrings(ICharStream stream) {
-        //TODO
-        /*try {
-            print(0, getRootAho());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         List<Occurence> result = new ArrayList<>();
         AhoTrieNode root = getRootAho();
         root.sufficsLink = root;
@@ -110,8 +64,6 @@ public class AhoTrie extends Trie {
                 ++index;
                 char symbol = stream.getChar();
                 node = goInAhoTree(node, symbol);
-                //TODO
-                //System.out.print(node.getParentEdge());
                 if (node.isTerminating()) {
                     addResult(result, root, node, index);
                 }
@@ -126,15 +78,11 @@ public class AhoTrie extends Trie {
         } catch (EmptyStreamException e) {
             throw new RuntimeException(ERROR_STREAM_MESSAGE, e);
         }
-        //TODO
-        //dfs(getRootAho());
         return result;
     }
 
     private void addResult(List<Occurence> result, AhoTrieNode root, AhoTrieNode node, int index) {
         AhoFinalInfo info = (AhoFinalInfo) node.getTerminatingInfo();
-        // TODO
-        //System.out.println(index + " " + info.getTemplate() + " " + info.getTemplate().length());
         result.add(new Occurence(((node == root) ? index - 1 : index - info.getTemplate().length()),
                 info.getTemplate(), info.getTemplateId()));
     }
