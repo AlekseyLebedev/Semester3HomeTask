@@ -3,11 +3,8 @@ package ru.mipt.hometask.strings;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AhoTrie extends Trie {
     private int templateId;
@@ -88,10 +85,17 @@ public class AhoTrie extends Trie {
     }
 
     private AhoTrieNode goInAhoTree(AhoTrieNode node, char symbol) {
-        getSufficsLink(node);
-        AhoTrieNode next = node.getChildAho(symbol);
-        if (next == null) {
-            next = (node.sufficsLink == node) ? node : goInAhoTree(node.sufficsLink, symbol);
+        AhoTrieNode next = null;
+        while (next == null) {
+            getSufficsLink(node);
+            next = node.getChildAho(symbol);
+            if (next == null) {
+                if ((node.sufficsLink == node)) {
+                    next = node;
+                } else {
+                    node = node.sufficsLink;
+                }
+            }
         }
         return next;
     }
