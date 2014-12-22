@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 @RunWith(Parameterized.class)
 public class SingleTemplateMatchersTests {
     public static final int MAX_TEST_SIZE = 15;
+    static int expectedTemplateId = 0;
     private IMetaTemplateMatcherFactory factory;
     private IMetaTemplateMatcher matcher;
 
@@ -29,9 +30,21 @@ public class SingleTemplateMatchersTests {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(
-                new Object[]{(IMetaTemplateMatcherFactory) (() -> new NaiveTemplateMatcher())},
-                new Object[]{(IMetaTemplateMatcherFactory) (() -> new SingleTemplateMatcher())},
-                new Object[]{(IMetaTemplateMatcherFactory) (() -> new StaticTemplateMatcher())}
+                new Object[]{(IMetaTemplateMatcherFactory) (NaiveTemplateMatcher::new)},
+                new Object[]{(IMetaTemplateMatcherFactory) (SingleTemplateMatcher::new)},
+                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new)},
+                new Object[]{(IMetaTemplateMatcherFactory) (() -> {
+                    NaiveTemplateMatcher result = new NaiveTemplateMatcher();
+                    Assert.assertEquals(0, result.addTemplate("****"));
+                    expectedTemplateId = 1;
+                    return result;
+                })},
+                new Object[]{(IMetaTemplateMatcherFactory) (() -> {
+                    expectedTemplateId = 1;
+                    StaticTemplateMatcher value = new StaticTemplateMatcher();
+                    Assert.assertEquals(0, value.addTemplate("****"));
+                    return value;
+                })}
         );
     }
 
@@ -40,13 +53,13 @@ public class SingleTemplateMatchersTests {
         return testOnSameStringsOfEqualChars(generator, matcher, occurrences -> {
             Assert.assertEquals(1, occurrences.size());
             Assert.assertEquals(0, occurrences.get(0).getPosition());
-            Assert.assertEquals(0, occurrences.get(0).getTemplateId());
+            Assert.assertEquals(expectedTemplateId, occurrences.get(0).getTemplateId());
         });
     }
 
     public static long testOnSameStringsOfEqualChars(Generators generator, IMetaTemplateMatcher matcher,
                                                      Consumer<List<Occurence>> check) throws TemplateAlreadyExist {
-        matcher.addTemplate(generator.getAllEqualsChars());
+        Assert.assertEquals(expectedTemplateId, matcher.addTemplate(generator.getAllEqualsChars()));
         return Utils.matchStreamAndCountMilliseconds(matcher, generator.getAllEqualsChars(),
                 check);
     }
@@ -58,7 +71,7 @@ public class SingleTemplateMatchersTests {
             Collections.sort(occurences);
             for (int i = 0; i < occurences.size(); i++) {
                 Assert.assertEquals(i, occurences.get(i).getPosition());
-                Assert.assertEquals(0, occurences.get(i).getTemplateId());
+                Assert.assertEquals(expectedTemplateId, occurences.get(i).getTemplateId());
             }
         });
     }
@@ -66,7 +79,7 @@ public class SingleTemplateMatchersTests {
     public static long testOnEmptyTemplatesWithStringOfEqualChars(Generators generator, IMetaTemplateMatcher matcher,
                                                                   Consumer<List<Occurence>> check)
             throws TemplateAlreadyExist {
-        matcher.addTemplate(generator.getEmptyString());
+        Assert.assertEquals(expectedTemplateId, matcher.addTemplate(generator.getEmptyString()));
         return Utils.matchStreamAndCountMilliseconds(matcher, generator.getAllEqualsChars(), check);
     }
 
@@ -78,7 +91,7 @@ public class SingleTemplateMatchersTests {
             Collections.sort(occurences);
             for (int i = 0; i < occurences.size(); i++) {
                 Assert.assertEquals(i, occurences.get(i).getPosition());
-                Assert.assertEquals(0, occurences.get(i).getTemplateId());
+                Assert.assertEquals(expectedTemplateId, occurences.get(i).getTemplateId());
             }
         });
     }
@@ -124,7 +137,7 @@ public class SingleTemplateMatchersTests {
         return testOnEqualGrayStrings(generator, matcher, occurences -> {
             Assert.assertEquals(1, occurences.size());
             Assert.assertEquals(0, occurences.get(0).getPosition());
-            Assert.assertEquals(0, occurences.get(0).getTemplateId());
+            Assert.assertEquals(expectedTemplateId, occurences.get(0).getTemplateId());
         });
     }
 
@@ -219,7 +232,7 @@ public class SingleTemplateMatchersTests {
             Collections.sort(occurences);
             for (int i = 0; i < expectedSize; i++) {
                 Assert.assertEquals(i, occurences.get(i).getPosition());
-                Assert.assertEquals(0, occurences.get(i).getTemplateId());
+                Assert.assertEquals(expectedTemplateId, occurences.get(i).getTemplateId());
             }
         });
     }
@@ -233,7 +246,7 @@ public class SingleTemplateMatchersTests {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws TemplateAlreadyExist {
         matcher = factory.generate();
     }
 
@@ -305,6 +318,7 @@ public class SingleTemplateMatchersTests {
     @Test
     public void testOnManySameChars() throws TemplateAlreadyExist {
         for (byte i = 1; i < MAX_TEST_SIZE - 1; i++) {
+            System.out.println(i);
             testOnManySameChars(Generators.getForSize(i), factory.generate());
         }
     }

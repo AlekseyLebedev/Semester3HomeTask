@@ -10,16 +10,13 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws TemplateAlreadyExist {
-        IMetaTemplateMatcher matcher = new StaticTemplateMatcher();
-        matcher.addTemplate("qwert");
-        List<Occurence> result = matcher.matchStream(new StringStream("rfgrfdvsdqwertyfvbcgbqwerdgdfsqwertyu"));
-        Assert.assertEquals(2, result.size());
-        Collections.sort(result);
+        IMetaTemplateMatcher matcher = new NaiveTemplateMatcher();
+        matcher.addTemplate("****");
+        matcher.addTemplate("aab");
+        List<Occurence> result = matcher.matchStream(new StringStream("aabaaabaaabaaab"));
         for (Occurence o : result) {
-            System.out.println(o.getPosition() + " " + o.getPosition());
+            System.out.println(o.getPosition() + " " + o.getTemplateId());
         }
-        //Assert.assertEquals(9, result.get(0).getPosition());
-        //Assert.assertEquals(30, result.get(1).getPosition());
         //new PerfomanceTests().run();
     }
 }

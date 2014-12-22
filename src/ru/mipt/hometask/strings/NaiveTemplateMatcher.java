@@ -11,7 +11,7 @@ import java.util.List;
 public final class NaiveTemplateMatcher implements IMetaTemplateMatcher {
     private ArrayList<String> templates = new ArrayList<String>();
     private Trie templateTrie = new Trie();
-    private int maxTemplateLength = 0;
+    private int maxTemplateLength = 1;
 
     private int getCurrentTemplateId() {
         return templates.size() - 1;
@@ -32,8 +32,6 @@ public final class NaiveTemplateMatcher implements IMetaTemplateMatcher {
 
     @Override
     public List<Occurence> matchStream(ICharStream stream) {
-        if (maxTemplateLength == 0) {
-        }
         List<Occurence> result = new ArrayList<Occurence>();
         char[] lastChars = new char[maxTemplateLength];
         int begin = 0;
@@ -42,23 +40,20 @@ public final class NaiveTemplateMatcher implements IMetaTemplateMatcher {
         try {
             while (!stream.isEmpty()) {
                 ++streamLength;
-                if (maxTemplateLength == 0) {
-                    stream.getChar();
-                    for (int i = 0; i < templates.size(); i++) {
-                        result.add(new Occurence(streamLength - 1, templates.get(i), i));
-                    }
+                int position;
+                if (length == maxTemplateLength) {
+                    lastChars[begin++] = stream.getChar();
+                    begin %= maxTemplateLength;
+                    position = begin;
                 } else {
-                    int position;
-                    if (length == maxTemplateLength) {
-                        lastChars[begin++] = stream.getChar();
-                        begin %= maxTemplateLength;
-                        position = begin;
+                    lastChars[length++] = stream.getChar();
+                    position = length;
+                }
+                for (int templateIndex = 0; templateIndex < templates.size(); ++templateIndex) {
+                    String template = templates.get(templateIndex);
+                    if (template.length() == 0) {
+                        result.add(new Occurence(streamLength - 1, template, templateIndex));
                     } else {
-                        lastChars[length++] = stream.getChar();
-                        position = length;
-                    }
-                    for (int templateIndex = 0; templateIndex < templates.size(); ++templateIndex) {
-                        String template = templates.get(templateIndex);
                         int beginIndex = position - template.length();
                         if (beginIndex < 0) {
                             beginIndex += maxTemplateLength;
@@ -77,7 +72,7 @@ public final class NaiveTemplateMatcher implements IMetaTemplateMatcher {
 
     private boolean checkTemplate(char[] lastChars, int length, String template, int beginIndex) {
         for (int i = 0; i < template.length() && i < length; i++) {
-            if (lastChars[(beginIndex + i) % template.length()] != template.charAt(i)) {
+            if (lastChars[(beginIndex + i) % maxTemplateLength] != template.charAt(i)) {
                 return false;
             }
         }

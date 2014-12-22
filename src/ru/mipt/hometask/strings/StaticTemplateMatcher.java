@@ -22,7 +22,6 @@ public final class StaticTemplateMatcher implements IMetaTemplateMatcher {
         }
         int templateId = getCurrentTemplateId();
         if (templateTrie.addString(template, templateId)) {
-            ++templatesCount;
             return templateId;
         } else {
             throw new TemplateAlreadyExist("Template \"" + template + "\" has been already added");

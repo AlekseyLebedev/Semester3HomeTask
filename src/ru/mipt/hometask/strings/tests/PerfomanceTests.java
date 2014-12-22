@@ -24,6 +24,7 @@ public class PerfomanceTests {
 
     public void run(PrintStream out) throws TemplateAlreadyExist {
         out.println("     ==Tests with one template==");
+        SingleTemplateMatchersTests.expectedTemplateId = 0;
         TablePrinter printer = new TablePrinter(4, CONSOLE_WIDTH, new String[]{
                 "n", "NaiveTemplateMatcher", "SingleTemplateMatcher", "StaticTemplateMatcher"}, out);
         out.println("\"\" in aaaaaaaaaaaaaaa...");
