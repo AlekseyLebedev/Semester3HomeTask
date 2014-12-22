@@ -23,28 +23,28 @@ public class SingleTemplateMatchersTests {
     private IMetaTemplateMatcherFactory factory;
     private IMetaTemplateMatcher matcher;
 
-    public SingleTemplateMatchersTests(IMetaTemplateMatcherFactory factory) {
+    public SingleTemplateMatchersTests(IMetaTemplateMatcherFactory factory, int id) {
         this.factory = factory;
+        expectedTemplateId = id;
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(
-                new Object[]{(IMetaTemplateMatcherFactory) (NaiveTemplateMatcher::new)},
-                new Object[]{(IMetaTemplateMatcherFactory) (SingleTemplateMatcher::new)},
-                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new)},
+                new Object[]{(IMetaTemplateMatcherFactory) NaiveTemplateMatcher::new, 0},
+                new Object[]{(IMetaTemplateMatcherFactory) SingleTemplateMatcher::new, 0},
+                new Object[]{(IMetaTemplateMatcherFactory) StaticTemplateMatcher::new, 0},
                 new Object[]{(IMetaTemplateMatcherFactory) (() -> {
                     NaiveTemplateMatcher result = new NaiveTemplateMatcher();
                     Assert.assertEquals(0, result.addTemplate("****"));
-                    expectedTemplateId = 1;
                     return result;
-                })},
+                }), 1},
                 new Object[]{(IMetaTemplateMatcherFactory) (() -> {
-                    expectedTemplateId = 1;
                     StaticTemplateMatcher value = new StaticTemplateMatcher();
                     Assert.assertEquals(0, value.addTemplate("****"));
                     return value;
-                })}
+                }), 1},
+                new Object[]{(IMetaTemplateMatcherFactory) SingleTemplateWrapper::new, 0}
         );
     }
 

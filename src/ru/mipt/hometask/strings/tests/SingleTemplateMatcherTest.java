@@ -5,6 +5,10 @@ import org.junit.Test;
 import ru.mipt.hometask.strings.Occurence;
 import ru.mipt.hometask.strings.SingleTemplateMatcher;
 import ru.mipt.hometask.strings.StringStream;
+import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
+import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
+import ru.mipt.hometask.strings.interfaces.ICharStream;
+import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
 
 import java.util.Collections;
 import java.util.List;
@@ -119,5 +123,62 @@ public class SingleTemplateMatcherTest {
         Assert.assertEquals(1, result.size());
         Collections.sort(result);
         Assert.assertEquals(13, result.get(0).getPosition());
+    }
+}
+
+class SingleTemplateWrapper implements IMetaTemplateMatcher {
+    SingleTemplateMatcher firstHalf, secondHalf, middle;
+
+    @Override
+    public int addTemplate(String template) throws TemplateAlreadyExist {
+        SingleTemplateMatchersTests.expectedTemplateId = 0;
+        firstHalf = new SingleTemplateMatcher();
+        secondHalf = new SingleTemplateMatcher();
+        middle = new SingleTemplateMatcher();
+        int length = template.length();
+        int halfLength = length / 2;
+        int quoter = length / 4;
+        Assert.assertEquals(0, firstHalf.addTemplate(template.substring(0, halfLength)));
+        Assert.assertEquals(0, secondHalf.addTemplate(template.substring(halfLength, length)));
+        Assert.assertEquals(0, middle.addTemplate(template.substring(quoter, quoter + halfLength)));
+        for (int i = halfLength; i < length; i++) {
+            firstHalf.appendCharToTemplate(template.charAt(i));
+        }
+        for (int i = halfLength; i > 0; i--) {
+            secondHalf.prependCharToTemplate(template.charAt(i - 1));
+        }
+        for (int i = quoter; i > 0; i--) {
+            middle.prependCharToTemplate(template.charAt(i - 1));
+        }
+        for (int i = quoter + halfLength; i < length; i++) {
+            middle.appendCharToTemplate(template.charAt(i));
+        }
+        return 0;
+    }
+
+    @Override
+    public List<Occurence> matchStream(ICharStream stream) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            while (!stream.isEmpty()) {
+                builder.append(stream.getChar());
+            }
+        } catch (EmptyStreamException e) {
+            firstHalf.matchStream(stream);
+        }
+        String input = builder.toString();
+        List<Occurence> list1 = firstHalf.matchStream(new StringStream(input));
+        List<Occurence> list2 = secondHalf.matchStream(new StringStream(input));
+        List<Occurence> list3 = middle.matchStream(new StringStream(input));
+        Assert.assertEquals(list1.size(), list2.size());
+        Assert.assertEquals(list1.size(), list3.size());
+        Collections.sort(list1);
+        Collections.sort(list2);
+        Collections.sort(list3);
+        for (int i = 0; i < list1.size(); i++) {
+            Assert.assertEquals(list1.get(i).getPosition(), list2.get(i).getPosition());
+            Assert.assertEquals(list1.get(i).getPosition(), list3.get(i).getPosition());
+        }
+        return list1;
     }
 }
