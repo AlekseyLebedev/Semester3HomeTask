@@ -103,8 +103,8 @@ public class AhoTrie extends Trie {
     private void getSufficsLink(AhoTrieNode node) {
         if (node.sufficsLink == null) {
             AhoTrieNode parent = node.getParent();
-            node.sufficsLink = ((parent.sufficsLink == parent) ?
-                    parent : goInAhoTree(parent.sufficsLink, node.getParentEdge()));
+            node.sufficsLink = ((parent.sufficsLink == parent)
+                    ? parent : goInAhoTree(parent.sufficsLink, node.getParentEdge()));
         }
     }
 }

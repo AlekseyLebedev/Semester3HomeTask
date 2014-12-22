@@ -127,7 +127,9 @@ public class SingleTemplateMatcherTest {
 }
 
 class SingleTemplateWrapper implements IMetaTemplateMatcher {
-    SingleTemplateMatcher firstHalf, secondHalf, middle;
+    SingleTemplateMatcher firstHalf;
+    SingleTemplateMatcher secondHalf;
+    SingleTemplateMatcher middle;
 
     @Override
     public int addTemplate(String template) throws TemplateAlreadyExist {
