@@ -16,7 +16,7 @@ interface TestRunner {
 }
 
 public class PerfomanceTests {
-    public static final int MAX_TIME = 10000;
+    public static final long MAX_TIME = 5000;
     public static final int CONSOLE_WIDTH = 120;
     public static final int META_TEMPLATE_MATCHERS = 3;
     public static final String NO_TIME_MESSAGE = "*";
@@ -84,6 +84,7 @@ public class PerfomanceTests {
             out.println("Test set " + test);
             testSetForMetaTemplate(printer, test, (byte) 16);
         }
+
     }
 
     private void testSetForMetaTemplate(TablePrinter printer, int test, byte maxSize) {

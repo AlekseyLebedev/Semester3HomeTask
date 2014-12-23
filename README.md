@@ -11,6 +11,8 @@
 
 Задание 3.3 - ```ru.mipt.hometask.strings.StaticTemplateMatcher```
 
+Задание 4.4 - ```ru.mipt.hometask.strings.DynamicTemplateMatcher```
+
 
 
 Тесты:

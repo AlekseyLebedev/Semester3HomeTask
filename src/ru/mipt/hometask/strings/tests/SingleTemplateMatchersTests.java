@@ -50,7 +50,8 @@ public class SingleTemplateMatchersTests {
                     DynamicTemplateMatcher value = new DynamicTemplateMatcher();
                     Assert.assertEquals(0, value.addTemplate("****"));
                     return value;
-                }), 1}
+                }), 1},
+                new Object[]{(IMetaTemplateMatcherFactory) WildcardSingleTemplateMatcher::new, 0}
         );
     }
 

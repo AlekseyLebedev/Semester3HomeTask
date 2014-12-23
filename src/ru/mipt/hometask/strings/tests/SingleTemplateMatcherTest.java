@@ -2,36 +2,56 @@ package ru.mipt.hometask.strings.tests;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import ru.mipt.hometask.strings.Occurence;
 import ru.mipt.hometask.strings.SingleTemplateMatcher;
 import ru.mipt.hometask.strings.StringStream;
+import ru.mipt.hometask.strings.WildcardSingleTemplateMatcher;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
+import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcherFactory;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@RunWith(Parameterized.class)
 public class SingleTemplateMatcherTest {
+
+    private IMetaTemplateMatcherFactory factory;
+
+    public SingleTemplateMatcherTest(IMetaTemplateMatcherFactory factory) {
+        this.factory = factory;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(
+                new Object[]{(IMetaTemplateMatcherFactory) SingleTemplateMatcher::new},
+                new Object[]{(IMetaTemplateMatcherFactory) WildcardSingleTemplateMatcher::new});
+    }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAddTemplateThrowsExceptionThanAdd2Templates() throws Exception {
-        SingleTemplateMatcher matcher = new SingleTemplateMatcher();
+        IMetaTemplateMatcher matcher = factory.generate();
         matcher.addTemplate("qwerty");
         matcher.addTemplate("abcd");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAddTemplateThrowsExceptionThanAdd2Templates2() throws Exception {
-        SingleTemplateMatcher matcher = new SingleTemplateMatcher();
+        IMetaTemplateMatcher matcher = factory.generate();
         matcher.addTemplate("qwerty");
         matcher.addTemplate("qwerty");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testMatchStreamThrowsExceptionThanNoTemplate() throws Exception {
-        SingleTemplateMatcher matcher = new SingleTemplateMatcher();
+        IMetaTemplateMatcher matcher = factory.generate();
         matcher.matchStream(new EmptyStream());
     }
 
