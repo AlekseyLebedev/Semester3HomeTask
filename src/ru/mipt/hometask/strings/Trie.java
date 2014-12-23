@@ -73,4 +73,9 @@ public class Trie {
     public final TrieNode getRoot() {
         return root;
     }
+
+    public void merge(Trie other) {
+        getRoot().merge(other.getRoot());
+        other.root = other.generateNode('m', null);
+    }
 }

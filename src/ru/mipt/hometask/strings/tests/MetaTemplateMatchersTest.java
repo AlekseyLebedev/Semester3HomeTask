@@ -5,10 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import ru.mipt.hometask.strings.NaiveTemplateMatcher;
-import ru.mipt.hometask.strings.Occurence;
-import ru.mipt.hometask.strings.StaticTemplateMatcher;
-import ru.mipt.hometask.strings.StringStream;
+import ru.mipt.hometask.strings.*;
 import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcherFactory;
@@ -31,7 +28,8 @@ public class MetaTemplateMatchersTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[]{(IMetaTemplateMatcherFactory) (NaiveTemplateMatcher::new), true},
-                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new), false}
+                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new), false},
+                new Object[]{(IMetaTemplateMatcherFactory) (DynamicTemplateMatcher::new), true}
         );
     }
 

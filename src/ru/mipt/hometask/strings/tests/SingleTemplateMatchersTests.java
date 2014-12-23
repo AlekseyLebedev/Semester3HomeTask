@@ -44,7 +44,13 @@ public class SingleTemplateMatchersTests {
                     Assert.assertEquals(0, value.addTemplate("****"));
                     return value;
                 }), 1},
-                new Object[]{(IMetaTemplateMatcherFactory) SingleTemplateWrapper::new, 0}
+                new Object[]{(IMetaTemplateMatcherFactory) SingleTemplateWrapper::new, 0},
+                new Object[]{(IMetaTemplateMatcherFactory) DynamicTemplateMatcher::new, 0},
+                new Object[]{(IMetaTemplateMatcherFactory) (() -> {
+                    DynamicTemplateMatcher value = new DynamicTemplateMatcher();
+                    Assert.assertEquals(0, value.addTemplate("****"));
+                    return value;
+                }), 1}
         );
     }
 

@@ -1,5 +1,6 @@
 package ru.mipt.hometask.strings.tests;
 
+import ru.mipt.hometask.strings.DynamicTemplateMatcher;
 import ru.mipt.hometask.strings.NaiveTemplateMatcher;
 import ru.mipt.hometask.strings.SingleTemplateMatcher;
 import ru.mipt.hometask.strings.StaticTemplateMatcher;
@@ -78,7 +79,7 @@ public class PerfomanceTests {
         out.println("     ==Tests with many templates==");
         SingleTemplateMatchersTests.expectedTemplateId = 0;
         printer = new TablePrinter(META_TEMPLATE_MATCHERS + 1, CONSOLE_WIDTH, new String[]{
-                "n", "NaiveTemplateMatcher", "StaticTemplateMatcher", ""}, out);
+                "n", "NaiveTemplateMatcher", "StaticTemplateMatcher", "DynamicTemplateMatcher"}, out);
         for (int test = 0; test < MetaTemplateMatchersTest.TESTS_COUNT; test++) {
             out.println("Test set " + test);
             testSetForMetaTemplate(printer, test, (byte) 16);
@@ -94,6 +95,7 @@ public class PerfomanceTests {
             final int[] result = new int[META_TEMPLATE_MATCHERS];
             runMetaTemplateTest(times, templates, streams, new NaiveTemplateMatcher(), 0, result);
             runMetaTemplateTest(times, templates, streams, new StaticTemplateMatcher(), 1, result);
+            runMetaTemplateTest(times, templates, streams, new DynamicTemplateMatcher(), 2, result);
             int templatesSize = 0;
             for (String template : templates) {
                 templatesSize += template.length();
