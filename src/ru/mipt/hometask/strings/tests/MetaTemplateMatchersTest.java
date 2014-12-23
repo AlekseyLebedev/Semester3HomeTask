@@ -41,7 +41,7 @@ public class MetaTemplateMatchersTest {
         switch (test) {
             case 0:
                 for (byte i = 2; i <= size; i++) {
-                    switch (i) {
+                    switch (i % 6) {
                         case 0:
                             result.add(Generators.getForSize(i).getAllEqualsChars());
                             break;
@@ -52,16 +52,13 @@ public class MetaTemplateMatchersTest {
                             result.add(Generators.getForSize(i).getAllEqualsCharsInsteadLast());
                             break;
                         case 3:
-                            result.add(Generators.getForSize(i).getEmptyString());
+                            result.add(Generators.getForSize(i).getManyEqualChars());
                             break;
                         case 4:
                             result.add(Generators.getForSize(i).getGrayString());
                             break;
                         case 5:
                             result.add(Generators.getForSize(i).getHalfLengthEqualChars());
-                            break;
-                        case 6:
-                            result.add(Generators.getForSize(i).getManyEqualChars());
                             break;
                     }
                 }
@@ -324,8 +321,10 @@ public class MetaTemplateMatchersTest {
     @Test
     public void testCorrect() throws TemplateAlreadyExist {
         for (int i = 0; i < TESTS_COUNT; i++) {
-            for (byte size = 3; size < (i < 2 ? 15 : 14); size++) {
-                runTest(getTemplates(size, i), getStreams(size, i));
+            for (byte size = 3; size < 14; size++) {
+                if (!(i == 2 && size == 14)) {
+                    runTest(getTemplates(size, i), getStreams(size, i));
+                }
             }
         }
     }
