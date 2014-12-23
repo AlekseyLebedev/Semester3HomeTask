@@ -1,8 +1,6 @@
 package ru.mipt.hometask.strings;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class TrieNode {
     private TerminatingTrieNodeInfo termination;
@@ -36,13 +34,14 @@ public class TrieNode {
         }
     }
 
-    public void merge(TrieNode other) {
+    public List<Pair<TrieNode, TrieNode>> merge(TrieNode other) {
+        List<Pair<TrieNode, TrieNode>> shouldMerge = new LinkedList<>();
         other.children.forEach((Character character, TrieNode trieNode) -> {
             TrieNode child = getChild(character);
             if (child == null) {
                 addChild(character, trieNode);
             } else {
-                child.merge(trieNode);
+                shouldMerge.add(new Pair<>(child, trieNode));
             }
         });
         other.children.clear();
@@ -53,6 +52,7 @@ public class TrieNode {
             this.termination = other.getTerminatingInfo();
             other.termination = null;
         }
+        return shouldMerge;
     }
 
     public final Map<Character, TrieNode> getAllChild() {

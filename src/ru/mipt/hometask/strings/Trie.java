@@ -3,6 +3,9 @@ package ru.mipt.hometask.strings;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Trie {
     protected static final String ERROR_STREAM_MESSAGE = "There is an error in input stream";
     private TrieNode root;
@@ -75,7 +78,31 @@ public class Trie {
     }
 
     public void merge(Trie other) {
-        getRoot().merge(other.getRoot());
+        Queue<Pair<TrieNode, TrieNode>> queue = new LinkedList<>();
+        queue.add(new Pair<>(getRoot(), other.getRoot()));
+        while (!queue.isEmpty()) {
+            Pair<TrieNode, TrieNode> item = queue.poll();
+            queue.addAll(item.getKey().merge(item.getValue()));
+        }
         other.root = other.generateNode('m', null);
+    }
+}
+
+
+class Pair<K, V> {
+    private K first;
+    private V second;
+
+    public Pair(K key, V value) {
+        first = key;
+        second = value;
+    }
+
+    public K getKey() {
+        return first;
+    }
+
+    public V getValue() {
+        return second;
     }
 }

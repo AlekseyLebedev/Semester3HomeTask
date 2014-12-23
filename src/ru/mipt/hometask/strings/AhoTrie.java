@@ -3,7 +3,6 @@ package ru.mipt.hometask.strings;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -216,13 +215,14 @@ class AhoTrieNode extends TrieNode {
     }
 
     @Override
-    public void merge(TrieNode other) {
-        super.merge(other);
+    public List<Pair<TrieNode, TrieNode>> merge(TrieNode other) {
+        List<Pair<TrieNode, TrieNode>> merge = super.merge(other);
         getAllChild().forEach((Character character, TrieNode trieNode) -> {
             AhoTrieNode node = (AhoTrieNode) trieNode;
             node.setParent(this);
             node.valid = false;
         });
+        return merge;
     }
 
     boolean isValid() {

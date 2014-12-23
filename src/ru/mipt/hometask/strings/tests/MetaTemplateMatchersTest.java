@@ -27,9 +27,9 @@ public class MetaTemplateMatchersTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(
+                new Object[]{(IMetaTemplateMatcherFactory) (DynamicTemplateMatcher::new), true},
                 new Object[]{(IMetaTemplateMatcherFactory) (NaiveTemplateMatcher::new), true},
-                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new), false},
-                new Object[]{(IMetaTemplateMatcherFactory) (DynamicTemplateMatcher::new), true}
+                new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new), false}
         );
     }
 
