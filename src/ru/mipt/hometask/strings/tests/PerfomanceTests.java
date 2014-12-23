@@ -36,7 +36,7 @@ public class PerfomanceTests {
                 printer.printHead();
                 long lastTemplateTime = 0;
                 long lastStreamTime = 0;
-                for (byte streamSize = BEGIN_WILDCARD_TEST; streamSize < 17; streamSize++) {
+                for (byte streamSize = BEGIN_WILDCARD_TEST; streamSize < 16; streamSize++) {
                     for (byte templateSize = BEGIN_WILDCARD_TEST; templateSize <= streamSize; templateSize++) {
                         NaiveTemplateMatcher matcher = new NaiveTemplateMatcher();
                         Generators templateGen = Generators.getForSize(templateSize);
