@@ -18,6 +18,7 @@ public class PerfomanceTests {
     public static final int META_TEMPLATE_MATCHERS = 3;
     public static final String NO_TIME_MESSAGE = "*";
     public static final int PART_SIZE = 10;
+    public static final int BEGIN_WILDCARD_TEST = 11;
     private long[] singleTemplateTimes = new long[3];
 
     public void run() throws TemplateAlreadyExist {
@@ -25,9 +26,40 @@ public class PerfomanceTests {
     }
 
     public void run(PrintStream out) throws TemplateAlreadyExist {
-        out.println("     ==Tests with one template==");
+        out.println("     ==Tests for wildcard==");
         SingleTemplateMatchersTests.expectedTemplateId = 0;
         TablePrinter printer = new TablePrinter(4, CONSOLE_WIDTH, new String[]{
+                "templateSize", "streamSize", "Adding Template", "Stream working"}, out);
+        for (int templateType = 0; templateType < 6; templateType++) {
+            for (int streamType = 0; streamType < 5; streamType++) {
+                out.println("Test for template #" + templateType + " and stream #" + streamType);
+                printer.printHead();
+                for (byte streamSize = BEGIN_WILDCARD_TEST; streamSize < 15; streamSize++) {
+                    for (byte templateSize = BEGIN_WILDCARD_TEST; templateSize <= templateSize; templateSize++) {
+                        NaiveTemplateMatcher matcher = new NaiveTemplateMatcher();
+                        Generators templateGen = Generators.getForSize(templateSize);
+                        Generators streamGen = Generators.getForSize(streamSize);
+                        printer.print(templateGen.getSize());
+                        printer.print(streamGen.getSize());
+                        final int finalTemplateType = templateType;
+                        final int finalStreamType = streamType;
+                        printer.print(Utils.runAndCountMilliseconds(() -> {
+                            try {
+                                matcher.addTemplate(getTemplate(finalTemplateType, templateGen));
+                            } catch (TemplateAlreadyExist templateAlreadyExist) {
+                                templateAlreadyExist.printStackTrace();
+                            }
+                        }));
+                        printer.print(Utils.runAndCountMilliseconds(() ->
+                                matcher.matchStream(new StringStream(getStream(finalStreamType, streamGen)))));
+                    }
+                }
+            }
+        }
+
+        out.println("     ==Tests with one template==");
+        SingleTemplateMatchersTests.expectedTemplateId = 0;
+        printer = new TablePrinter(4, CONSOLE_WIDTH, new String[]{
                 "n", "NaiveTemplateMatcher", "SingleTemplateMatcher", "StaticTemplateMatcher"}, out);
         out.println("\"\" in aaaaaaaaaaaaaaa...");
         runSingleTemplateTests(printer, SingleTemplateMatchersTests::testOnEmptyTemplatesWithStringOfEqualChars,
@@ -118,6 +150,40 @@ public class PerfomanceTests {
                 }));
             }
         }
+    }
+
+    private String getStream(int streamType, Generators streamGen) {
+        switch (streamType) {
+            case 0:
+                return streamGen.getAllEqualsChars();
+            case 1:
+                return streamGen.getDifferentCharsPairs();
+            case 2:
+                return streamGen.getDifferentChars();
+            case 3:
+                return streamGen.getAllEqualsCharsInsteadFirst();
+            case 4:
+                return streamGen.getAllEqualsCharsInsteadLast();
+        }
+        return null;
+    }
+
+    private String getTemplate(int templateType, Generators templateGen) {
+        switch (templateType) {
+            case 0:
+                return templateGen.getEqualCharsAndWildcard();
+            case 1:
+                return templateGen.getDifferentCharsAndWildcard();
+            case 2:
+                return templateGen.getTenWildcardsInEqualChars();
+            case 3:
+                return templateGen.getHandredWildcardsInEqualChars();
+            case 4:
+                return templateGen.getEveryTenthSymbolWildcarsEqualChars();
+            case 5:
+                return templateGen.getEveryTenthSymbolWildcarsDifferentChars();
+        }
+        return null;
     }
 
     private void testSetForMetaTemplate(TablePrinter printer, int test, byte maxSize) {

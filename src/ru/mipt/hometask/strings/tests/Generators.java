@@ -14,6 +14,14 @@ public class Generators {
     private String allEqualsCharsInsteadFirst;
     private String manyEqualChars;
     private String halfLengthEqualChars;
+    private String equalCharsAndWildcard;
+    private String differentCharsAndWildcard;
+    private String differentCharsPairs;
+    private String differentChars;
+    private String tenWildcardsInEqualChars;
+    private String handredWildcardsInEqualChars;
+    private String everyTenthSymbolWildcarsEqualChars;
+    private String everyTenthSymbolWildcarsDifferentChars;
 
     public Generators(byte sizeCode) {
         this.sizeCode = sizeCode;
@@ -115,5 +123,107 @@ public class Generators {
             halfLengthEqualChars = builder.toString();
         }
         return halfLengthEqualChars;
+    }
+
+    public String getEqualCharsAndWildcard() {
+        if (equalCharsAndWildcard == null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                builder.append(i % 2 == 0 ? 'a' : '?');
+            }
+            equalCharsAndWildcard = builder.toString();
+        }
+        return equalCharsAndWildcard;
+    }
+
+    public String getDifferentCharsAndWildcard() {
+        if (differentCharsAndWildcard == null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                builder.append(i % 2 == 0 ? (char) ((i / 2 % 26) + 'a') : '?');
+            }
+            differentCharsAndWildcard = builder.toString();
+        }
+        return differentCharsAndWildcard;
+    }
+
+    public String getDifferentCharsPairs() {
+        if (differentCharsPairs != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                builder.append((char) ((i / 2 % 26) + 'a'));
+            }
+            differentCharsAndWildcard = builder.toString();
+        }
+        return differentCharsPairs;
+    }
+
+    public String getDifferentChars() {
+        if (differentChars != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                builder.append((char) ((i % 26) + 'a'));
+            }
+            differentChars = builder.toString();
+        }
+        return differentChars;
+    }
+
+    public String getTenWildcardsInEqualChars() {
+        if (tenWildcardsInEqualChars != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                for (int j = 0; j < 10; j++) {
+                    builder.append(getForSize((byte) (sizeCode - 1)).getAllEqualsChars());
+                    builder.append('?');
+                }
+            }
+            tenWildcardsInEqualChars = builder.toString();
+        }
+        return tenWildcardsInEqualChars;
+    }
+
+    public String getHandredWildcardsInEqualChars() {
+        if (handredWildcardsInEqualChars != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                for (int j = 0; j < 100; j++) {
+                    builder.append(getForSize((byte) (sizeCode - 2)).getAllEqualsChars());
+                    builder.append('?');
+                }
+            }
+            handredWildcardsInEqualChars = builder.toString();
+        }
+        return handredWildcardsInEqualChars;
+    }
+
+    public String getEveryTenthSymbolWildcarsEqualChars() {
+        if (everyTenthSymbolWildcarsEqualChars != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                if (i % 10 == 0) {
+                    builder.append('?');
+                } else {
+                    builder.append('a');
+                }
+            }
+            everyTenthSymbolWildcarsEqualChars = builder.toString();
+        }
+        return everyTenthSymbolWildcarsEqualChars;
+    }
+
+    public String getEveryTenthSymbolWildcarsDifferentChars() {
+        if (everyTenthSymbolWildcarsDifferentChars != null) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < getSize(); i++) {
+                if (i % 10 == 0) {
+                    builder.append('?');
+                } else {
+                    builder.append((char) ((i % 26) + 'a'));
+                }
+            }
+            everyTenthSymbolWildcarsDifferentChars = builder.toString();
+        }
+        return everyTenthSymbolWildcarsDifferentChars;
     }
 }
