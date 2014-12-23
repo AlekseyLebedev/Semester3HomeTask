@@ -3,8 +3,11 @@ package ru.mipt.hometask.strings;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AhoTrie extends Trie {
     private int templateId;
@@ -65,11 +68,10 @@ public class AhoTrie extends Trie {
                     addResult(result, root, node, index);
                 }
                 AhoTrieNode lastFinal = node;
-                getSufficsLink(lastFinal);
-                while (lastFinal.getFinalLink() != null) {
-                    lastFinal = lastFinal.getFinalLink();
-                    addResult(result, root, lastFinal, index);
+                while (getFinalLink(lastFinal) != null) {
+                    lastFinal = getFinalLink(lastFinal);
                     getSufficsLink(lastFinal);
+                    addResult(result, root, lastFinal, index);
                 }
             }
         } catch (EmptyStreamException e) {
@@ -105,13 +107,28 @@ public class AhoTrie extends Trie {
             AhoTrieNode parent = node.getParent();
             node.sufficsLink = ((parent.sufficsLink == parent)
                     ? parent : goInAhoTree(parent.sufficsLink, node.getParentEdge()));
+
         }
+    }
+
+    public AhoTrieNode getFinalLink(AhoTrieNode node) {
+        if (!node.isSetFinalLink()) {
+            getSufficsLink(node);
+            AhoTrieNode lnk = node.sufficsLink;
+            if (lnk == node) {
+                node.finalLink = null;
+            } else {
+                node.finalLink = (lnk.isTerminating() ? lnk : getFinalLink(lnk));
+            }
+            node.setFinalLinkWas();
+        }
+        return node.finalLink;
     }
 }
 
 class AhoTrieNode extends TrieNode {
     AhoTrieNode sufficsLink;
-    private AhoTrieNode finalLink;
+    AhoTrieNode finalLink;
     private boolean setFinalLink = false;
     private AhoTrieNode parent;
     private char parentEdge;
@@ -121,29 +138,24 @@ class AhoTrieNode extends TrieNode {
         this.parentEdge = parentEdge;
     }
 
+    boolean isSetFinalLink() {
+        return setFinalLink;
+    }
+
+    void setFinalLinkWas() {
+        this.setFinalLink = true;
+    }
+
     AhoTrieNode getChildAho(char symbol) {
         return (AhoTrieNode) getChild(symbol);
     }
 
-    public AhoTrieNode getParent() {
+    AhoTrieNode getParent() {
         return parent;
     }
 
-    public char getParentEdge() {
+    char getParentEdge() {
         return parentEdge;
-    }
-
-    public AhoTrieNode getFinalLink() {
-        if (!setFinalLink) {
-            AhoTrieNode lnk = this.sufficsLink;
-            if (lnk == this) {
-                finalLink = null;
-            } else {
-                finalLink = (lnk.isTerminating() ? lnk : lnk.getFinalLink());
-            }
-            setFinalLink = true;
-        }
-        return finalLink;
     }
 }
 
@@ -151,16 +163,16 @@ class AhoFinalInfo extends TerminatingTrieNodeInfo {
     private int templateId;
     private String template;
 
-    public AhoFinalInfo(int templateId, String template) {
+    AhoFinalInfo(int templateId, String template) {
         this.templateId = templateId;
         this.template = template;
     }
 
-    public int getTemplateId() {
+    int getTemplateId() {
         return templateId;
     }
 
-    public String getTemplate() {
+    String getTemplate() {
         return template;
     }
 }

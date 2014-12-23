@@ -85,7 +85,7 @@ public class TrieTest {
             }
             assertThereIsList(trie, list);
             for (int j = 0; j < i; j += 2) {
-                Assert.assertFalse(addMethod.add(trie, grayStrings[i]));
+                Assert.assertFalse(addMethod.add(trie, grayStrings[j]));
             }
         }
         for (int i = 9; i >= 5; --i) {
@@ -110,8 +110,8 @@ public class TrieTest {
                 assertNotFound(trie, grayStrings[j]);
             }
             assertThereIsList(trie, list);
-            for (int j = 0; j < i; j += 2) {
-                Assert.assertFalse(addMethod.add(trie, grayStrings[i]));
+            for (int j = 0; j < 5; j += 2) {
+                Assert.assertFalse(addMethod.add(trie, grayStrings[j]));
             }
         }
         for (int j = 0; j < grayStrings.length; j += 2) {
@@ -135,7 +135,6 @@ public class TrieTest {
         Assert.assertNull(trie.search(test));
         Assert.assertNull(trie.search(new StringStream(test)));
     }
-
 
     private void assertFound(Trie trie, String test) {
         Assert.assertNotNull(trie.search(test));
