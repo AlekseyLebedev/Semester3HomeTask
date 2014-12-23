@@ -60,6 +60,8 @@ public class PerfomanceTests {
                             long streamTime = Utils.runAndCountMilliseconds(() ->
                                     matcher.matchStream(new StringStream(getStream(finalStreamType, streamGen))));
                             printer.print(streamTime);
+                            lastTemplateTime = templateTime;
+                            lastStreamTime = streamTime;
                         }
                     }
                 }
