@@ -1,9 +1,6 @@
 package ru.mipt.hometask.strings.tests;
 
-import ru.mipt.hometask.strings.DynamicTemplateMatcher;
-import ru.mipt.hometask.strings.NaiveTemplateMatcher;
-import ru.mipt.hometask.strings.SingleTemplateMatcher;
-import ru.mipt.hometask.strings.StaticTemplateMatcher;
+import ru.mipt.hometask.strings.*;
 import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
 
@@ -20,6 +17,7 @@ public class PerfomanceTests {
     public static final int CONSOLE_WIDTH = 120;
     public static final int META_TEMPLATE_MATCHERS = 3;
     public static final String NO_TIME_MESSAGE = "*";
+    public static final int PART_SIZE = 10;
     private long[] singleTemplateTimes = new long[3];
 
     public void run() throws TemplateAlreadyExist {
@@ -85,6 +83,41 @@ public class PerfomanceTests {
             testSetForMetaTemplate(printer, test, (byte) 16);
         }
 
+        out.println("     ==Tests for DynamicTemplateMatcher==");
+        SingleTemplateMatchersTests.expectedTemplateId = 0;
+        printer = new TablePrinter(4, CONSOLE_WIDTH, new String[]{
+                "n", "Adding " + PART_SIZE + " templates", "Templates length", "Matching Stream"}, out);
+        for (int test = 0; test < MetaTemplateMatchersTest.TESTS_COUNT; test++) {
+            DynamicTemplateMatcher matcher = new DynamicTemplateMatcher();
+            out.println("Test " + test);
+            printer.printHead();
+            List<String> templates = MetaTemplateMatchersTest.getTemplates((byte) 15, test);
+            List<String> streams = MetaTemplateMatchersTest.getStreams((byte) 15, test);
+            for (int i = 0; i < templates.size(); ) {
+                final int[] begin = {i, 0};
+                long time = Utils.runAndCountMilliseconds(() -> {
+                    try {
+                        for (int j = 0; j < PART_SIZE && begin[0] < templates.size(); j++) {
+                            String template = templates.get(begin[0]);
+                            matcher.addTemplate(template);
+                            ++begin[0];
+                            begin[1]+=template.length();
+                        }
+                    } catch (TemplateAlreadyExist e) {
+                        e.printStackTrace();
+                    }
+                });
+                i = begin[0];
+                printer.print(begin[0]);
+                printer.print(time);
+                printer.print(begin[1]);
+                printer.print(Utils.runAndCountMilliseconds(() -> {
+                    for (String stream : streams) {
+                        matcher.matchStream(new StringStream(stream));
+                    }
+                }));
+            }
+        }
     }
 
     private void testSetForMetaTemplate(TablePrinter printer, int test, byte maxSize) {
