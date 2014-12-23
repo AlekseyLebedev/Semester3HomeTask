@@ -148,18 +148,18 @@ public class Generators {
     }
 
     public String getDifferentCharsPairs() {
-        if (differentCharsPairs != null) {
+        if (differentCharsPairs == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 builder.append((char) ((i / 2 % 26) + 'a'));
             }
-            differentCharsAndWildcard = builder.toString();
+            differentCharsPairs = builder.toString();
         }
         return differentCharsPairs;
     }
 
     public String getDifferentChars() {
-        if (differentChars != null) {
+        if (differentChars == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 builder.append((char) ((i % 26) + 'a'));
@@ -170,7 +170,7 @@ public class Generators {
     }
 
     public String getTenWildcardsInEqualChars() {
-        if (tenWildcardsInEqualChars != null) {
+        if (tenWildcardsInEqualChars == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 for (int j = 0; j < 10; j++) {
@@ -184,7 +184,7 @@ public class Generators {
     }
 
     public String getHandredWildcardsInEqualChars() {
-        if (handredWildcardsInEqualChars != null) {
+        if (handredWildcardsInEqualChars == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 for (int j = 0; j < 100; j++) {
@@ -198,7 +198,7 @@ public class Generators {
     }
 
     public String getEveryTenthSymbolWildcarsEqualChars() {
-        if (everyTenthSymbolWildcarsEqualChars != null) {
+        if (everyTenthSymbolWildcarsEqualChars == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 if (i % 10 == 0) {
@@ -213,7 +213,7 @@ public class Generators {
     }
 
     public String getEveryTenthSymbolWildcarsDifferentChars() {
-        if (everyTenthSymbolWildcarsDifferentChars != null) {
+        if (everyTenthSymbolWildcarsDifferentChars == null) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < getSize(); i++) {
                 if (i % 10 == 0) {

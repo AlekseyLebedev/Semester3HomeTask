@@ -34,8 +34,10 @@ public class PerfomanceTests {
             for (int streamType = 0; streamType < 5; streamType++) {
                 out.println("Test for template #" + templateType + " and stream #" + streamType);
                 printer.printHead();
-                for (byte streamSize = BEGIN_WILDCARD_TEST; streamSize < 15; streamSize++) {
-                    for (byte templateSize = BEGIN_WILDCARD_TEST; templateSize <= templateSize; templateSize++) {
+                long lastTemplateTime = 0;
+                long lastStreamTime = 0;
+                for (byte streamSize = BEGIN_WILDCARD_TEST; streamSize < 17; streamSize++) {
+                    for (byte templateSize = BEGIN_WILDCARD_TEST; templateSize <= streamSize; templateSize++) {
                         NaiveTemplateMatcher matcher = new NaiveTemplateMatcher();
                         Generators templateGen = Generators.getForSize(templateSize);
                         Generators streamGen = Generators.getForSize(streamSize);
@@ -43,15 +45,22 @@ public class PerfomanceTests {
                         printer.print(streamGen.getSize());
                         final int finalTemplateType = templateType;
                         final int finalStreamType = streamType;
-                        printer.print(Utils.runAndCountMilliseconds(() -> {
-                            try {
-                                matcher.addTemplate(getTemplate(finalTemplateType, templateGen));
-                            } catch (TemplateAlreadyExist templateAlreadyExist) {
-                                templateAlreadyExist.printStackTrace();
-                            }
-                        }));
-                        printer.print(Utils.runAndCountMilliseconds(() ->
-                                matcher.matchStream(new StringStream(getStream(finalStreamType, streamGen)))));
+                        if (lastStreamTime > MAX_TIME || lastTemplateTime > MAX_TIME) {
+                            printer.print("*");
+                            printer.print("*");
+                        } else {
+                            long templateTime = Utils.runAndCountMilliseconds(() -> {
+                                try {
+                                    matcher.addTemplate(getTemplate(finalTemplateType, templateGen));
+                                } catch (TemplateAlreadyExist templateAlreadyExist) {
+                                    templateAlreadyExist.printStackTrace();
+                                }
+                            });
+                            printer.print(templateTime);
+                            long streamTime = Utils.runAndCountMilliseconds(() ->
+                                    matcher.matchStream(new StringStream(getStream(finalStreamType, streamGen))));
+                            printer.print(streamTime);
+                        }
                     }
                 }
             }
