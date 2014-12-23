@@ -172,11 +172,10 @@ public class Generators {
     public String getTenWildcardsInEqualChars() {
         if (tenWildcardsInEqualChars == null) {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < getSize(); i++) {
-                for (int j = 0; j < 10; j++) {
-                    builder.append(getForSize((byte) (sizeCode - 1)).getAllEqualsChars());
-                    builder.append('?');
-                }
+            Generators generator = getForSize((byte) (sizeCode - 2));
+            for (int j = 0; j < 10; j++) {
+                builder.append(generator.getAllEqualsChars());
+                builder.append('?');
             }
             tenWildcardsInEqualChars = builder.toString();
         }
@@ -186,11 +185,9 @@ public class Generators {
     public String getHandredWildcardsInEqualChars() {
         if (handredWildcardsInEqualChars == null) {
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < getSize(); i++) {
-                for (int j = 0; j < 100; j++) {
-                    builder.append(getForSize((byte) (sizeCode - 2)).getAllEqualsChars());
-                    builder.append('?');
-                }
+            for (int j = 0; j < 100; j++) {
+                builder.append(getForSize((byte) (sizeCode - 2)).getAllEqualsChars());
+                builder.append('?');
             }
             handredWildcardsInEqualChars = builder.toString();
         }
