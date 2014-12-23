@@ -3,11 +3,8 @@ package ru.mipt.hometask.strings;
 import ru.mipt.hometask.strings.exceptions.EmptyStreamException;
 import ru.mipt.hometask.strings.interfaces.ICharStream;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AhoTrie extends Trie {
     private int templateId;

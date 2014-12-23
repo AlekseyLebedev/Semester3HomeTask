@@ -7,6 +7,7 @@ import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
 
 import java.io.PrintStream;
+import java.util.List;
 
 @FunctionalInterface
 interface TestRunner {
@@ -16,6 +17,8 @@ interface TestRunner {
 public class PerfomanceTests {
     public static final int MAX_TIME = 10000;
     public static final int CONSOLE_WIDTH = 120;
+    public static final int META_TEMPLATE_MATCHERS = 3;
+    public static final String NO_TIME_MESSAGE = "*";
     private long[] singleTemplateTimes = new long[3];
 
     public void run() throws TemplateAlreadyExist {
@@ -71,6 +74,78 @@ public class PerfomanceTests {
         runSingleTemplateTests(printer, SingleTemplateMatchersTests::testOnGrayStringDifferentLength2,
                 (Generators generator, IMetaTemplateMatcher matcher) -> SingleTemplateMatchersTests.
                         testOnGrayStringDifferentLength2(generator, matcher, null), 23, false);
+
+        out.println("     ==Tests with many templates==");
+        SingleTemplateMatchersTests.expectedTemplateId = 0;
+        printer = new TablePrinter(META_TEMPLATE_MATCHERS + 1, CONSOLE_WIDTH, new String[]{
+                "n", "NaiveTemplateMatcher", "StaticTemplateMatcher", ""}, out);
+        for (int test = 0; test < MetaTemplateMatchersTest.TESTS_COUNT; test++) {
+            out.println("Test set " + test);
+            testSetForMetaTemplate(printer, test, (byte) 16);
+        }
+    }
+
+    private void testSetForMetaTemplate(TablePrinter printer, int test, byte maxSize) {
+        final long[][] times = new long[META_TEMPLATE_MATCHERS][2];
+        printer.printHead();
+        for (byte size = 10; size < maxSize; size++) {
+            List<String> templates = MetaTemplateMatchersTest.getTemplates(size, test);
+            List<String> streams = MetaTemplateMatchersTest.getStreams(size, test);
+            final int[] result = new int[META_TEMPLATE_MATCHERS];
+            runMetaTemplateTest(times, templates, streams, new NaiveTemplateMatcher(), 0, result);
+            runMetaTemplateTest(times, templates, streams, new StaticTemplateMatcher(), 1, result);
+            int templatesSize = 0;
+            for (String template : templates) {
+                templatesSize += template.length();
+            }
+            int streamsSize = 0;
+            for (String stream : streams) {
+                streamsSize += stream.length();
+            }
+            printer.print("Code" + size + ", occ.");
+            for (int i = 0; i < META_TEMPLATE_MATCHERS; i++) {
+                printer.print(result[i]);
+            }
+            printer.print("T" + templates.size() + ":" + templatesSize);
+            for (int i = 0; i < META_TEMPLATE_MATCHERS; i++) {
+                printTime(printer, times[i][0]);
+            }
+            printer.print("S" + streams.size() + ":" + streamsSize);
+            for (int i = 0; i < META_TEMPLATE_MATCHERS; i++) {
+                printTime(printer, times[i][1]);
+            }
+
+        }
+    }
+
+    private void printTime(TablePrinter printer, long time) {
+        if (time >= 0) {
+            printer.print(time);
+        } else {
+            printer.print(NO_TIME_MESSAGE);
+        }
+    }
+
+    private void runMetaTemplateTest(long[][] times, List<String> templates, List<String> streams,
+                                     IMetaTemplateMatcher matcher, int index, int[] result) {
+        if (times[index][0] >= 0 && times[index][1] >= 0 && times[index][0] < MAX_TIME && times[index][1] < MAX_TIME) {
+            times[index][0] = Utils.runAndCountMilliseconds(() -> {
+                try {
+                    for (String template : templates) {
+                        matcher.addTemplate(template);
+                    }
+                } catch (TemplateAlreadyExist templateAlreadyExist) {
+                    templateAlreadyExist.printStackTrace();
+                }
+            });
+            times[index][1] = 0;
+            for (String stream : streams) {
+                times[index][1] += Utils.matchStreamAndCountMilliseconds(matcher, stream, occurences ->
+                        result[index] += occurences.size());
+            }
+        } else {
+            times[index][0] = times[index][1] = -1;
+        }
     }
 
     private void runSingleTemplateTests(TablePrinter printer, TestRunner checker, TestRunner runner, int max,
@@ -103,7 +178,7 @@ public class PerfomanceTests {
     private void writeOneSingleTemplateTest(TablePrinter printer, TestRunner work, Generators generator,
                                             IMetaTemplateMatcher matcher, int i) throws TemplateAlreadyExist {
         if (singleTemplateTimes[i] > MAX_TIME) {
-            printer.print("*");
+            printer.print(NO_TIME_MESSAGE);
         } else {
             long time = work.run(generator, matcher);
             printer.print(time);

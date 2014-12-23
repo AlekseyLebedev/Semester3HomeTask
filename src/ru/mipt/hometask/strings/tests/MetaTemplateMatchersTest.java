@@ -6,19 +6,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import ru.mipt.hometask.strings.NaiveTemplateMatcher;
+import ru.mipt.hometask.strings.Occurence;
 import ru.mipt.hometask.strings.StaticTemplateMatcher;
 import ru.mipt.hometask.strings.StringStream;
 import ru.mipt.hometask.strings.exceptions.TemplateAlreadyExist;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcher;
 import ru.mipt.hometask.strings.interfaces.IMetaTemplateMatcherFactory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @RunWith(Parameterized.class)
 public class MetaTemplateMatchersTest {
-    public static final int MAX_TEST_SIZE = 15;
+    public static final int TESTS_COUNT = 4;
     private IMetaTemplateMatcherFactory factory;
     private IMetaTemplateMatcher matcher;
     private boolean canAddTemplateAfterStream;
@@ -34,6 +33,104 @@ public class MetaTemplateMatchersTest {
                 new Object[]{(IMetaTemplateMatcherFactory) (NaiveTemplateMatcher::new), true},
                 new Object[]{(IMetaTemplateMatcherFactory) (StaticTemplateMatcher::new), false}
         );
+    }
+
+    public static List<String> getTemplates(byte size, int test) {
+        List<String> result = new ArrayList<>();
+        Generators generator = Generators.getForSize(size);
+        switch (test) {
+            case 0:
+                for (byte i = 2; i <= size; i++) {
+                    switch (i) {
+                        case 0:
+                            result.add(Generators.getForSize(i).getAllEqualsChars());
+                            break;
+                        case 1:
+                            result.add(Generators.getForSize(i).getAllEqualsCharsInsteadFirst());
+                            break;
+                        case 2:
+                            result.add(Generators.getForSize(i).getAllEqualsCharsInsteadLast());
+                            break;
+                        case 3:
+                            result.add(Generators.getForSize(i).getEmptyString());
+                            break;
+                        case 4:
+                            result.add(Generators.getForSize(i).getGrayString());
+                            break;
+                        case 5:
+                            result.add(Generators.getForSize(i).getHalfLengthEqualChars());
+                            break;
+                        case 6:
+                            result.add(Generators.getForSize(i).getManyEqualChars());
+                            break;
+                    }
+                }
+                break;
+            case 1:
+                for (byte i = 2; i <= size; i++) {
+                    result.add(Generators.getForSize(i).getGrayString());
+                }
+                break;
+            case 2:
+                for (byte i = 4; i < size; i++) {
+                    add(result, generator.getAllEqualsChars());
+                    add(result, generator.getAllEqualsCharsInsteadFirst());
+                    add(result, generator.getAllEqualsCharsInsteadLast());
+                    add(result, generator.getGrayString());
+                    add(result, generator.getHalfLengthEqualChars());
+                    add(result, generator.getManyEqualChars());
+                }
+                break;
+            case 3:
+                for (byte i = 2; i <= size; i++) {
+                    result.add(Generators.getForSize(i).getAllEqualsChars());
+                }
+                break;
+        }
+        return result;
+    }
+
+    public static List<String> getStreams(byte size, int test) {
+        List<String> result = new ArrayList<>();
+        Generators generator = Generators.getForSize(size);
+        switch (test) {
+            case 0:
+                result.add(generator.getAllEqualsChars());
+                result.add(generator.getAllEqualsCharsInsteadFirst());
+                result.add(generator.getAllEqualsCharsInsteadLast());
+                result.add(generator.getEmptyString());
+                result.add(generator.getGrayString());
+                result.add(generator.getHalfLengthEqualChars());
+                result.add(generator.getManyEqualChars());
+                break;
+            case 1:
+                for (byte i = 2; i <= size; i++) {
+                    result.add(Generators.getForSize(i).getGrayString());
+                }
+                break;
+            case 2:
+                for (byte i = 4; i < size; i++) {
+                    add(result, generator.getAllEqualsChars());
+                    add(result, generator.getAllEqualsCharsInsteadFirst());
+                    add(result, generator.getAllEqualsCharsInsteadLast());
+                    add(result, generator.getGrayString());
+                    add(result, generator.getHalfLengthEqualChars());
+                    add(result, generator.getManyEqualChars());
+                }
+                break;
+            case 3:
+                for (byte i = 2; i <= size; i++) {
+                    result.add(Generators.getForSize(i).getAllEqualsChars());
+                }
+                break;
+        }
+        return result;
+    }
+
+    private static void add(List<String> result, String text) {
+        if (!result.contains(text)) {
+            result.add(text);
+        }
     }
 
     @Before
@@ -174,6 +271,62 @@ public class MetaTemplateMatchersTest {
     private void assertNotFound(IMetaTemplateMatcher matcher, String test) {
         if (canAddTemplateAfterStream) {
             Assert.assertEquals(0, matcher.matchStream(new StringStream(test)).size());
+        }
+    }
+
+    public long checkStream(List<String> templates, int maxTemplate, String value, IMetaTemplateMatcher matcher) {
+        return Utils.matchStreamAndCountMilliseconds(matcher, value, occurences -> {
+            int count = 0;
+            Collections.sort(occurences);
+            for (int i = 0; i < value.length(); i++) {
+                for (int j = 0; j < maxTemplate; j++) {
+                    String template = templates.get(j);
+                    if (checkSubstring(value, i, template)) {
+                        Occurence occurence = occurences.get(count);
+                        Assert.assertEquals(i, occurence.getPosition());
+                        Assert.assertEquals(j, occurence.getTemplateId());
+                        Assert.assertEquals(template, occurence.getTemplate());
+                        ++count;
+                    }
+                }
+            }
+            Assert.assertEquals(count, occurences.size());
+        });
+    }
+
+    private boolean checkSubstring(String value, int index, String template) {
+        for (int i = 0; i < template.length(); i++) {
+            if (index + i >= value.length()) {
+                return false;
+            }
+            if (template.charAt(i) != value.charAt(i + index)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void runTest(List<String> templates, List<String> streams) throws TemplateAlreadyExist {
+        IMetaTemplateMatcher matcher = factory.generate();
+        for (int i = 0; i < templates.size(); i++) {
+            Assert.assertEquals(i, matcher.addTemplate(templates.get(i)));
+            if (canAddTemplateAfterStream) {
+                for (String stream : streams) {
+                    checkStream(templates, i + 1, stream, matcher);
+                }
+            }
+        }
+        for (String stream : streams) {
+            checkStream(templates, templates.size(), stream, matcher);
+        }
+    }
+
+    @Test
+    public void testCorrect() throws TemplateAlreadyExist {
+        for (int i = 0; i < TESTS_COUNT; i++) {
+            for (byte size = 3; size < (i < 2 ? 15 : 14); size++) {
+                runTest(getTemplates(size, i), getStreams(size, i));
+            }
         }
     }
 }
