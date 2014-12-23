@@ -101,7 +101,7 @@ public class PerfomanceTests {
                             String template = templates.get(begin[0]);
                             matcher.addTemplate(template);
                             ++begin[0];
-                            begin[1]+=template.length();
+                            begin[1] += template.length();
                         }
                     } catch (TemplateAlreadyExist e) {
                         e.printStackTrace();
